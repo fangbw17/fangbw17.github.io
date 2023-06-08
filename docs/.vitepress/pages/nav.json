@@ -11,6 +11,10 @@
         {
             "text": "React",
             "link": "/react/reactive"
+        },
+        {
+            "text": "Other",
+            "link": "/other/eslint"
         }
     ],
     "sidebar": {
@@ -62,6 +66,17 @@
                     {
                         "text": "响应式",
                         "link": "/react/reactive"
+                    }
+                ]
+            }
+        ],
+        "/other/": [
+            {
+                "text": "other",
+                "items": [
+                    {
+                        "text": "ESLint",
+                        "link": "/other/eslint"
                     }
                 ]
             }
