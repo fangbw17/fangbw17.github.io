@@ -1,89 +1,108 @@
 {
   "nav": [
-      {
-          "text": "Javascript",
-          "link": "/javascript/basic/data-type"
-      },
-      {
-          "text": "Vue",
-          "link": "/vue/reactive"
-      },
-      {
-          "text": "React",
-          "link": "/react/reactive"
-      },
-      {
-          "text": "Other",
-          "link": "/other/eslint"
-      }
+    {
+      "text": "Javascript",
+      "link": "/javascript/basic/data-type"
+    },
+    {
+      "text": "Typescript",
+      "link": "/typescript/symbol"
+    },
+    {
+      "text": "Vue",
+      "link": "/vue/reactive"
+    },
+    {
+      "text": "React",
+      "link": "/react/reactive"
+    },
+    {
+      "text": "Other",
+      "link": "/other/eslint"
+    }
   ],
   "sidebar": {
-      "/javascript/": [
+    "/javascript/": [
+      {
+        "text": "基础",
+        "collapsed": true,
+        "items": [
           {
-              "text": "基础",
-              "collapsed": true,
-              "items": [
-                  {
-                      "text": "数据类型", 
-                      "link": "/javascript/basic/data-type"
-                  },
-                  {
-                      "text": "变量声明", 
-                      "link": "/javascript/basic/variable"
-                  }
-              ]
+            "text": "数据类型",
+            "link": "/javascript/basic/data-type"
           },
           {
-              "text": "高级",
-              "collapsed": true,
-              "items": [
-                  {
-                      "text": "闭包", 
-                      "link": "/javascript/advanced/closure"
-                  },
-                  {
-                      "text": "ES6 新特性", 
-                      "link": "/javascript/advanced/es6"
-                  },
-                  {
-                      "text": "事件循环",
-                      "link": "/javascript/advanced/eventloop"
-                  }
-              ]
+            "text": "变量声明",
+            "link": "/javascript/basic/variable"
           }
-      ],
-      "/vue/": [
+        ]
+      },
+      {
+        "text": "高级",
+        "collapsed": true,
+        "items": [
           {
-              "text": "vue",
-              "items": [
-                  {
-                      "text": "响应式",
-                      "link": "/vue/reactive"
-                  }
-              ]
-          }
-      ],
-      "/react/": [
+            "text": "闭包",
+            "link": "/javascript/advanced/closure"
+          },
           {
-              "text": "react",
-              "items": [
-                  {
-                      "text": "响应式",
-                      "link": "/react/reactive"
-                  }
-              ]
-          }
-      ],
-      "/other/": [
+            "text": "ES6 新特性",
+            "link": "/javascript/advanced/es6"
+          },
           {
-              "text": "其他",
-              "items": [
-                  {
-                      "text": "ESLint",
-                      "link": "/other/eslint"
-                  }
-              ]
+            "text": "事件循环",
+            "link": "/javascript/advanced/eventloop"
           }
-      ]
+        ]
+      }
+    ],
+    "/typescript": [
+      {
+        "text": "typescript",
+        "items": [
+          {
+            "text": "Symbol",
+            "link": "/typescript/symbol"
+          },
+          {
+            "text": "对象",
+            "link": "/typescript/object"
+          }
+        ]
+      }
+    ],
+    "/vue/": [
+      {
+        "text": "vue",
+        "items": [
+          {
+            "text": "响应式",
+            "link": "/vue/reactive"
+          }
+        ]
+      }
+    ],
+    "/react/": [
+      {
+        "text": "react",
+        "items": [
+          {
+            "text": "响应式",
+            "link": "/react/reactive"
+          }
+        ]
+      }
+    ],
+    "/other/": [
+      {
+        "text": "其他",
+        "items": [
+          {
+            "text": "ESLint",
+            "link": "/other/eslint"
+          }
+        ]
+      }
+    ]
   }
 }
