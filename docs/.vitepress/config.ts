@@ -4,8 +4,8 @@ import { sidebar } from "./config/sidebars";
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
-    title: "Blog",
-    description: "Blog",
+    title: "Fangbw",
+    description: "Fangbw",
     srcDir: "./src",
     themeConfig: {
         // https://vitepress.dev/reference/default-theme-config

@@ -67,6 +67,10 @@
           {
             "text": "对象",
             "link": "/typescript/object"
+          },
+          {
+            "text": "接口",
+            "link": "/typescript/interface"
           }
         ]
       }
