@@ -71,6 +71,10 @@
           {
             "text": "接口",
             "link": "/typescript/interface"
+          },
+          {
+            "text": "类",
+            "link": "/typescript/class"
           }
         ]
       }
