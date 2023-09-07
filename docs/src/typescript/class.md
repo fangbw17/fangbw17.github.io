@@ -64,7 +64,7 @@ class Rect {
     x!: number;
     y!: number;
 
-    constructor(x: number, y: number) {
+    constructor(x: number = 0, y: number = 0) {
         this.x = x;
         this.y = y;
     }
@@ -74,3 +74,224 @@ class Rect {
     }
 }
 ```
+
+上面示例中，构造方法和普通方法 `getPoint` 都注明了参数类型，但是省略了返回值类型，`ts` 可以推断出来。类的方法和函数一样，可以使用参数默认值，以及函数重载。
+
+```typescript
+class Rect {
+    constructor(x: number, y: string);
+    constructor(s: string);
+    constructor(xs: number | string, y?: string) {}
+}
+```
+
+构造方法不能声明返回值，默认是返回实例对象的。
+
+### 访问器方法
+
+访问器方法指的是读写某个属性的方法，包括取值器（getter）和 存储器 (setter) 两种方法。取值器读取属性，存储器写入属性。
+
+```typescript
+class Rect {
+    _x: number = 0;
+    get x() {
+        return this._x;
+    }
+
+    set x(val) {
+        this._x = val;
+    }
+}
+```
+
+上面示例中，`get x()` 是取值器，其中 `get` 是关键词，`x` 是属性名。外部读取 `x` 属性时，示例对象会自动调用这个方法，该方法的返回值是 `_x` 属性的值. `set x(val)` 是存储器，其中 `set` 是关键词， `x` 是属性名。外部写入 `x` 属性时，示例对象会自动调用这个方法，并将所赋的值作为函数参数传入。
+
+`ts` 对访问器有以下规则:
+
+1.  如果某个属性只有 `get` 方法，没有 `set` 方法，那么该属性自动成为只读属性。
+
+```typescript
+class Rect {
+    _x: number = 0;
+    get x() {
+        return this._x;
+    }
+}
+
+const rect = new Rect();
+rect.x = 20; // 报错
+```
+
+2. `ts` 5.1 版本之前，`set` 方法的参数类型必须兼容 `get` 方法的返回值类型，否则报错。
+
+```typescript
+class Person {
+    _name = "";
+    get name(): string {
+        // 报错
+        return this._name;
+    }
+    set name(value: number) {
+        this._name = String(value);
+    }
+}
+```
+
+上面示例中，`get` 方法的返回值类型是 `string`，`set` 方法的参数类型 `number` 不兼容，会报错，需要改成下面这样。
+
+```typescript
+class Person {
+    _name = "";
+    get name(): string {
+        return this._name;
+    }
+    set name(value: number | string) {
+        this._name = String(value);
+    }
+}
+```
+
+3. `get` 和 `set` 的可访问性必须一致，要么都公开，要么都私有。
+
+### 属性索引
+
+类允许定义属性索引。
+
+```typescript
+class Person {
+    [prop: string]: boolean | ((prop: string) => boolean);
+
+    get(name: string) {
+        return this[name] as boolean;
+    }
+}
+```
+
+上面示例中，`[prop: string]` 表示所有属性名类型为字符串的属性，值要么是布尔值，要么是返回布尔值的函数。
+
+::: tip
+由于 `class` 的方法也是一种属性（属性值为函数的属性），所以属性索引的类型定义也要涵盖方法。如果一个对象同时定义了属性索引和方法，那么前者必须包含后者
+
+```typescript
+class Person {
+    [prop: string]: boolean;
+    name() {
+        // 报错
+        return "tom";
+    }
+}
+
+class Person {
+    [prop: string]: boolean | (() => string);
+    name() {
+        // 正确
+        return "tom";
+    }
+}
+```
+
+访问器方法和属性一致，不需要定义返回某种类型值的函数。
+
+```typescript
+class Person {
+    [prop: string]: string;
+
+    get name() {
+        return "tom";
+    }
+}
+```
+
+:::
+
+## class 和 interface
+
+### implements
+
+`interface` 接口和 `type` 别名，可以用对象的形式，为 `class` 设置一些属性或方法。
+
+```typescript
+interface Person {
+    name: string;
+    age: number;
+}
+
+type Person1 = {
+    name: string;
+    age: number;
+};
+
+class P implements Person {
+    name = "";
+    age = 0;
+}
+```
+
+使用 `implements` 关键字满足上述 `interface` 或者 `type` 中定义的属性。
+
+`interface` 只指定检查条件，不满足则报错。`interface` 并不能替代 `class` 自身的类型声明。
+
+```typescript
+interface A {
+    get(name: string): boolean;
+}
+
+class B implements A {
+    get(address) {
+        console.log(address);
+        return false;
+    }
+}
+```
+
+上面示例中，B 实现了 A，但是 A 中的声明不能代替 B，`get` 方法中参数 `address` 的类型是 `any`，不是 `string`。B 仍然需要声明参数 `address` 的类型。
+::: tip
+interface 描述的属性和方法的访问性都是公开的。在 interface 中不能定义私有的属性和方法。需要定义私有或者受保护的需要在 class 中定义。
+:::
+
+### 多实现
+
+类是可以实现多个接口或者别名的，以逗号分隔
+
+```typescript
+interface I1 {}
+interface I2 {}
+interface I3 {}
+type T1 = {};
+type T2 = {};
+type T3 = {};
+class I implements I1, I2, I3 {}
+class T implements T1, T2, T3 {}
+```
+
+当同时实现的接口或者别名过多时，使得代码难以管理。可以用类的继承或者接口的继承来替代
+
+```typescript
+class Country implements P {}
+
+class China implements Country {}
+
+interface Country {
+    name: string;
+}
+interface China extends Country {
+    people: number;
+}
+```
+
+### 类与接口的合并
+
+```typescript
+interface Point {
+    x: number;
+}
+class Point {
+    y: number = 0;
+}
+
+const p = new Point();
+p.x = 10;
+p.y = 20;
+```
+在 `ts` 中不能出现同名的类，但是类与接口是可以同名的，类的实例会拥有同名类和接口的属性与方法。
+
