@@ -70,7 +70,7 @@ class Rect {
     }
 
     getPoint() {
-        return [x, y];
+        return [this.x, this.y];
     }
 }
 ```
@@ -293,5 +293,115 @@ const p = new Point();
 p.x = 10;
 p.y = 20;
 ```
+
 在 `ts` 中不能出现同名的类，但是类与接口是可以同名的，类的实例会拥有同名类和接口的属性与方法。
 
+## class 类型
+
+### 实例类型
+
+`ts` 类本身就是一种类型，代表该类的实例类型，而不是 class 自身类型
+
+```typescript
+class Person {
+    name: string;
+    constructor(name: string) {
+        this.name = name;
+    }
+}
+const p: Person = new Person("tom");
+```
+
+上面示例中，定义了一个类 `Person`。类名就代表一种类型，实例对象 `p` 的类型就是 `Person`。
+对于实现了接口的类，定义的变量既可以声明接口，也可以声明为类。
+
+```typescript
+interface Father {
+    name: string;
+}
+class Son implements Father {
+    name = "";
+    age = 20;
+}
+const s1: Son = new Son();
+const s2: Father = new Son();
+s2.name = "tom";
+console.log(s2); // Son { name: 'tom', age: 20 }
+console.log(s2.name); // tom
+console.log((s2 as Son).age); // 20
+```
+
+上面示例中，变量 `s2` 可以写成 `Son`，也可以写成 `Father`。区别在于 `Son`中如果定义了接口中没有的属性或者方法，那么变量 `s2` 无法访问这些属性和方法。
+
+### 类的自身类型
+
+要获取一个类的自身类型，可以使用 `typeof` 运算符。
+
+```typescript
+class Person {}
+function createPerson(PersonClass: typeof Person): Person {
+    return new PersonClass();
+}
+```
+
+写成 `PersonClass: Person` 的话，传入的参数实际上是 `Person` 类的实例对象。如果想传入 `Person` 类自身，可以使用 `typeof`。
+
+### 结构类型原则
+
+class 也遵循“结构类型原则”。对象只要满足 class 的实例结构，就可以说是同一个类型。
+
+```typescript
+class Person {
+    name = "tom";
+    age = 20;
+}
+
+function fn(p: Person) {
+    console.log(p.name);
+}
+
+const p = { name: "a", age: 18 };
+fn(p);
+```
+
+上面示例中, 变量 `p` 满足 `Person` 类的结构，可以当做参数传入。
+只要两者之前其中一种类型的结构满足另一种类型的结构，那么就可以认为是 “结构类型原则”。但是需要注意的是，只有大的包含小的，并不能用小的包含大的。比如下例：
+
+```typescript
+class Person {
+    name = "tom";
+    age = 20;
+}
+type P1 = { name: string };
+type P2 = { name: string; age: number; address: string };
+const p1: P1 = new Person(); // 正确
+const p2: P2 = new Person(); // 错误
+```
+
+::: tip
+“结构类型原则” 只检查实例成圆，不考虑静态成圆和构造方法。
+如果类中存在私有成员或保护成员，那么确定兼容关系时，`ts` 要求私有成员和保护成员来自同一个类，即继承关系。
+
+```typescript
+// 情况一
+class A {
+    private name = "a";
+}
+
+class B extends A {}
+
+const a: A = new B();
+
+// 情况二
+class A {
+    protected name = "a";
+}
+
+class B extends A {
+    protected name = "b";
+}
+
+const a: A = new B();
+```
+
+:::
