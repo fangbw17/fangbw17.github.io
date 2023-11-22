@@ -405,3 +405,204 @@ const a: A = new B();
 ```
 
 :::
+
+## 类的继承
+
+1. 类可以继承另一个类，使用关键字 `extends`
+2. 子类可以赋值给父类
+3. 子类可以重写父类方法
+
+```typescript
+class A {
+    greet() {
+        console.log("class A");
+    }
+}
+
+class B extends A {
+    greet() {
+        super.greet();
+        console.log("class B");
+    }
+}
+
+const b = new B();
+b.greet();
+// class A
+// class B
+```
+
+::: tip
+子类的同名方法不能与父类（基类）的类型定义冲突
+
+```typescript
+class A {
+    getName() {
+        return "class A";
+    }
+}
+class B extends A {
+    getName(name: string) {
+        // 报错
+        return name;
+    }
+}
+```
+
+:::
+
+父类受保护的属性可以在子类中修改，但是无法修改成私有的
+
+```typescript
+class A {
+    protected name?: string;
+    protected age?: number;
+}
+
+class B extends A {
+    // 正确
+    public name?: string;
+    // 报错
+    private age?: number;
+}
+```
+
+## 可访问性修饰符
+
+类的内部成员的外部访问性包括三种：`public`、`protected`、`private`
+
+-   `public` 修饰符是默认修饰符，类的属性与方法默认都是 `public`
+-   `protected` 修饰符表示该成员是保护类型，只能在类的内部与子类内部使用，不可以通过实例直接访问
+-   `private` 修饰符表示该成员是私有类型，只能在类的内部访问，子类和实例都无法直接访问
+
+### protected
+
+```typescript
+{
+    class A {
+        protected age = 20;
+    }
+
+    class B extends A {
+        age = 22;
+    }
+
+    const a = new A();
+    a.age; // 报错
+    const b = new B();
+    b.age;
+}
+```
+
+父类 `A` 中受保护的属性 `age` 在子类 `B` 中可以重定义，并且重定义的修饰符权限是 `public`, 所以实例 `a` 无法访问 `age`，但是实例 `b` 是可以访问 `age` 的
+
+### private
+
+```typescript
+{
+    class A {
+        private age = 20;
+    }
+
+    // 报错
+    class B extends A {
+        age = 22;
+    }
+}
+```
+
+父类中定义的私有成员，在子类中无法重定义。严格来说，`private` 定义的成员并不是真正意义上的私有成员。因为 `TS` 编译成 `JS` 后，实际上是没有 `private` 关键字的，这时在外部访问时是不会报错的。使用方括号（【】）或者 `in` 关键字可以访问。
+
+```typescript
+class A {
+    private age = 21;
+}
+
+const a = new A();
+console.log(a["age"]); // 21
+if ("age" in a) {
+    console.log("age"); // age
+}
+```
+
+因此，ES2022 引入了自己的私有成员写法#propName。因此建议不使用 private，改用 ES2022 的写法，获得真正意义的私有成员。
+
+```typescript
+class A {
+    private age = 21;
+    #name = "张三";
+
+    getName() {
+        return this.#name;
+    }
+}
+
+const a = new A();
+console.log(a["name"]); // 报错
+console.log(a.getName()); // 张三
+```
+
+### 实例属性的简写形式
+
+```typescript
+{
+    class A {
+        name!: string;
+        age!: number;
+        address!: string;
+
+        constructor(name: string, age: number, address: string) {
+            this.name = name;
+            this.age = age;
+            this.address = address;
+        }
+    }
+
+    class B {
+        constructor(
+            private name: string,
+            protected age: number,
+            public address: string
+        ) {}
+    }
+}
+```
+
+上面示例中，两种形式转化成 `JS` 是一样的。构造方法的参数 name/age/address 前面有修饰符，这时 TypeScript 就会自动声明一个公开属性 name/age/address，不必在构造方法里面写任何代码，同时还会设置值为构造方法的参数值。注意，这里的修饰符不能省略。
+
+## 抽象类、抽象成员
+
+Typescript 允许在类前面添加关键字 `abstract`，表示该类不能被实例化，只能当做其他类的模板。即 “抽象类”
+
+```typescript
+abstract class A {
+    name?: string;
+}
+
+// 报错
+const a = new A();
+```
+
+在抽象类被子类继承时，子类必须实现抽象类内部定义的抽象成员与抽象方法。
+
+```typescript
+abstract class A {
+    abstract name?: string;
+    age = 10;
+
+    abstract foo(): void;
+}
+
+class B extends A {
+    name = "s";
+    foo() {
+        console.log("foo");
+    }
+}
+```
+::: tip
+- 抽象成员只能存在于抽象类中，不能存在于普通类中
+- 抽象成员不能有具体的实现。
+- 抽象成员前不能有 `private` 修饰符，否则无法再子类中实现该成员
+- 一个子类最多只能继承一个抽象类
+:::
