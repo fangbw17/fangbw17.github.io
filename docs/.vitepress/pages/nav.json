@@ -75,6 +75,14 @@
           {
             "text": "类",
             "link": "/typescript/class"
+          },
+          {
+            "text": "泛型",
+            "link": "/typescript/generic"
+          },
+          {
+            "text": "枚举",
+            "link": "/typescript/enum"
           }
         ]
       }
