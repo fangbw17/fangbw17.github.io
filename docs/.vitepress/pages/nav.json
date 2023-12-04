@@ -83,6 +83,10 @@
           {
             "text": "枚举",
             "link": "/typescript/enum"
+          },
+          {
+            "text": "类型断言",
+            "link": "/typescript/assert"
           }
         ]
       }
