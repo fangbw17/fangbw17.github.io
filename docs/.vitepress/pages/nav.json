@@ -87,6 +87,22 @@
           {
             "text": "类型断言",
             "link": "/typescript/assert"
+          },
+          {
+            "text": "模块",
+            "link": "/typescript/module"
+          },
+          {
+            "text": "装饰器",
+            "link": "/typescript/decorator"
+          },
+          {
+            "text": "declare",
+            "link": "/typescript/declare"
+          },
+          {
+            "text": "类型运算符",
+            "link": "/typescript/type-operators"
           }
         ]
       }
