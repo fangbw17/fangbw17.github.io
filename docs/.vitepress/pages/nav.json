@@ -103,6 +103,18 @@
           {
             "text": "类型运算符",
             "link": "/typescript/type-operators"
+          },
+          {
+            "text": "类型映射",
+            "link": "/typescript/type-map"
+          },
+          {
+            "text": "类型工具",
+            "link": "/typescript/type-tool"
+          },
+          {
+            "text": "注释指令",
+            "link": "/typescript/note-directive"
           }
         ]
       }
