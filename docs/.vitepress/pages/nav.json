@@ -115,6 +115,10 @@
           {
             "text": "注释指令",
             "link": "/typescript/note-directive"
+          },
+          {
+            "text": "tsconfig",
+            "link": "/typescript/tsconfig"
           }
         ]
       }
