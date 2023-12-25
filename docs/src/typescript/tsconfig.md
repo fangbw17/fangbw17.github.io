@@ -387,6 +387,93 @@ try {
 
 #### allowArbitraryExtensions
 
+在项目中 JavaScript 和 TypeScript 文件扩展名一般是 `.js|.ts|.tsx|.jsx` 等，如果导入的文件不是这种后缀名，那么将会以 `{file.basename}.d.{extension}` 的形式查找该路径的声明文件。
+
+```css
+.cookie-banner {
+    display: none;
+}
+```
+
+```typescript
+declare const css: {
+    cookieBanner: string;
+};
+export default css;
+```
+
+```typescript
+import styles from "./app.css";
+styles.cookieBanner;
+```
+
+#### allowImportingTsExtensions
+
+允许导入 TypeScript 的扩展文件：`.ts|.mts|.tsx`。只有当 `--noEmit` 或 `--emitDeclarationOnly` 开启时才有效，因为文件导入路径还需要被构建工具进行处理后才能正常使用。
+
+#### allowUmdGlobalAccess
+
+允许从内部模块文件访问作为全局变量的 _UMD_ 导出。
+
+#### baseUrl
+
+设置 TypeScript 项目的基准目录。由于默认是以 tsconfig.json 的位置作为基准目录，所以一般不需要使用该属性。
+
+#### customConditions
+
+可以设置一些附加条件，当 TypeScript 从 `package.json` 的 `exports` 或 `imports` 字段解析时，这些条件将添加到解析器默认使用的现有条件中。
+
+#### module
+
+指定编译产物的模块格式。默认值与 `target` 属性有关。如果 `target` 是 `ES6` 以下，则默认值是 `commonjs`，否则是 `ES6/ES2015`
+
+#### moduleResolution
+
+指定模块解析策略，即如何查找模块，有四种值。
+
+-   node：采用 Node.js 的 CommonJS 语法
+-   node16|nodenext：采用 Node.js 的 ECMAScript 语法
+-   classic：TypeScript 1.6 之前的语法，新项目不建议使用。
+-   bundler：TypeScript 5.0 新增的选项，表示当前代码被其他打包器处理（Webpack、Vite、esbuild、Parcel、rollup、swc），要求 `module` 设为 `es2015` 及以上版本。
+    `moduleResolution` 的默认值与 `module` 属性有关，如果 `module` 为 `AMD`、`UMD`、`System` 或 `ES6/ES2015`，默认值为 `classic`。如果是 `node16` 或 `nodenext`，默认值为这两个。其他情况下，默认值为 `Node`
+
+#### moduleSuffixes
+
+提供一种方法覆盖解析模块时要搜索的文件名后缀列表
+
+```json
+{
+    "compilerOptions": {
+        "moduleSuffixes": [".ios", ".native", ""]
+    }
+}
+```
+
+```typescript
+import * as foo from "./foo";
+```
+
+TypeScript 将查找相关文件 `./foo.ios.ts`、`./foo.native.ts`，最后是`./foo.ts`
+
+#### noResolve
+
+开启的情况下忽略三斜杠引用（///）；既不会导致添加新文件，也不会更改所提供文件的顺序。
+
+#### paths
+
+设置模块名和模块路径的映射，也就是 TypeScript 如何导入 `require` 或 imports 语句加载的模块。
+`paths` 是基于 `baseUrl` 加载的，所以必须设置 `baseUrl`。
+
+```json
+{
+    "baseUrl": "./",
+    "path": {
+        "jquery": ["./vendor/jquery/dist/jquery"],
+        "app/*": ["./src/app/*"],
+        "@": "src/"
+    }
+}
+```
 
 #### allowSyntheticDefaultImports
 
