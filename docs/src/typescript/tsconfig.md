@@ -475,15 +475,254 @@ TypeScript 将查找相关文件 `./foo.ios.ts`、`./foo.native.ts`，最后是`
 }
 ```
 
-#### allowSyntheticDefaultImports
+#### resolveJsonModule
 
-使用 `import` 名默认加载没有 `default` 输出的模块。
+开启该设置允许导入带有 `.json` 扩展名的模块，这是节点项目中的常见做法。
+TypeScript 默认不支持解析 JSON 文件
+
+```json
+{
+    "compilerOptions": {
+        "resolveJsonModule": true
+    }
+}
+```
 
 ```typescript
-//
-import React from "react";
-import * as React from "react";
+// 开启 resolveJsonModule 的情况下正确
+import settings from "./settins.json";
 ```
+
+#### resolvePackageJsonExports & resolvePackageJsonImports
+
+启用该配置后，import 来自 node*modules 中的模块时，TypeScript 会去解析模块对应的 package.json 中的 exports 和 imports 字段。
+::: tip
+\_moduleResolution* 选项设置为 `node16`、`nodenext` 和 `bundler` 时，上述两个配置默认是开启的。
+:::
+
+#### rootDir
+
+设置源码根目录，只要和编译后的脚本结构有关。`rootDir` 对应目录下的所有脚本，会成为输出目录里面的顶层脚本。
+
+```
+MyProj
+├── tsconfig.json
+├── core
+│   ├── a.ts
+│   ├── b.ts
+│   ├── sub
+│   │   ├── c.ts
+├── types.d.ts
+```
+
+rootDir 的推断值是所有非声明输入文件的最长公共路径，上面示例是 `core/`。
+如果设置的 outDir 是 dist，那么结构如下：
+
+```
+MyProj
+├── dist
+│   ├── a.js
+│   ├── b.js
+│   ├── sub
+│   │   ├── c.js
+```
+
+假如希望 core 成为输出目录结构的一部分。通过在 `tsconfig.json` 中设置 `rootDir: "."`，TypeScript 将结构改为如下：
+
+```
+MyProj
+├── dist
+│   ├── core
+│   │   ├── a.js
+│   │   ├── b.js
+│   │   ├── sub
+│   │   │   ├── c.js
+```
+
+#### rootDirs
+
+把多个不同目录，合并成一个虚拟目录，便于模块定位
+
+```json
+{
+    "compilerOptions": {
+        "rootDirs": ["bar", "foo"]
+    }
+}
+```
+
+示例中，rootDirs 将 `bar` 和 `foo` 组成一个虚拟目录
+
+#### typeRoots
+
+该配置设置类型模块所在的目录，默认情况下是 `node_modules/@types`，该目录下的模块会自动加入编译。而设置了 `typeRoots`，那么编译的就是该配置下指定的就是该文件夹下的模块。
+
+```json
+{
+    "compilerOptions": {
+        "typeRoots": ["./typings", "./vendor/types"]
+    }
+    // 数组中每个成员就是一个目录，它们的路径是相对于 tsconfig.json 位置
+}
+```
+
+#### types
+
+该配置设置类型模块是哪些，默认情况下是 `node_modules/@types` 下的所有模块。而设置了 `types`，那么就是指定了具体模块，比如：
+
+```json
+{
+    "compilerOptions": {
+        "types": ["node", "jest", "express"]
+    }
+}
+```
+
+仅会编译 `node_modules/@types` 下的 `node`、`jest` 和 `express` 模块，`node_modules/@types/*` 下的其他软件包将不包括在内。
+
+### Emit
+
+#### declaration
+
+设置编译时是否为每个脚本生成类型声明文件 `.d.ts`。
+
+#### declarationDir
+
+设置生成的 `.d.ts` 文件所在的目录。
+
+```json
+{
+    "compilerOptions": {
+        "declaration": true,
+        "declarationDir": "./types"
+    }
+}
+```
+
+#### declarationMap
+
+设置生成的 `.d.ts` 类型声明文件的同时，还会生成对应的 Source Map 文件。
+
+#### downlevelIteration
+
+开启该设置即可在 低版本 es6 以下使用 `for / of`、`数组扩展([...a])`、`参数扩展(...args)` 和 `Symbol.iterator`。
+
+#### emitBOM
+
+设置是否在编译结果的文件头添加字节顺序标志 BOM，默认值是 `false`
+
+#### emitDeclarationOnly
+
+设置编译后只生成 `.d.ts` 文件，不生成 `.js` 文件。
+
+#### importHelpers
+
+该设置主要是 TypeScript 处理降级操作。如 TypeScript 使用一些辅助代码来执行扩展类、扩展数组或对象以及异步操作等操作。默认情况下，这些助手被插入到使用它们的文件中。如果在许多不同的模块中使用相同的帮助程序，可能会导致代码重复。
+而如果 `importHelpers` 开启，这些辅助函数将从 `tslib` 模块导入。
+当 `target` 设置的较低时，如 `ES5`，而代码中使用了较新的语法，可以开启 importHelpers 来编译降级，但是需要导入 `tslib`。
+
+#### importsNotUsedAsValues
+
+已弃用，使用 `verbatimModuleSyntax` 替代。
+`importsNotUsedAsValues` 有 3 种值：
+
+-   `remove`：删除仅引用类型的 import 语句的默认行为。
+-   `preserve`：保留从未使用过值或类型的所有 import 语句。这可能会导致导入/副作用被保留。
+-   `error`：保留所有导入（与保留选项相同），但当值导入仅用作类型时会出错。如果想确保没有值被意外导入，但仍然使副作用导入显式化，这可能很有用。
+
+#### inlineSourceMap
+
+设置后，TypeScript 将把源码映射内容嵌入到 `.js` 文件中，而不是编写 `.js.map` 文件。虽然会导致 JS 文件变大。但是某些场景下可能很方便。比如，想在不允许提供 `.map` 文件的 Web 服务器上调试 JS 文件。_与 sourceMap 互斥_
+
+#### inlineSources
+
+设置后，TypeScript 会将 .ts 文件的原始内容作为嵌入字符串包含到源映射中（使用源映射的 sourcesContent 属性）。
+
+#### mapRoot
+
+指定 `SourceMap` 文件的位置，而不是默认的生成位置。
+
+```json
+{
+    "compilerOptions": {
+        "sourceMap": true,
+        "mapRoot": "https://my-website.com/debug/sourcemaps/"
+    }
+}
+```
+
+#### newLine
+
+设置换行符为 `CRLF` （Windows）还是 `LF` （Linux）
+
+#### noEmit
+
+设置是否产生编译结果。如果不生成，TypeScript 编译就纯粹作为类型检查了。
+
+#### noEmitHelpers
+
+设置在编译结果文件不插入 TypeScript 辅助函数，而是通过外部引入辅助函数来解决，比如 `tslib`。
+
+#### noEmitOnError
+
+指定一旦编译报错，就不生成编译产物。
+
+#### outDir
+
+指定输出目录。若不指定，编译出来的 `.js` 文件存放在对应的 `.ts` 文件的相同位置。
+
+#### outFile
+
+设置将所有非模块的全局文件，编译在同一个文件里面。只有在 `module` 属性为 `None`、`System`、`AMD` 时才生效，并且不能用来打包 `CommonJS` 或 `ES6` 模块。
+
+#### preserveConstEnums
+
+将 `const enum` 结构保留下来，不替换成常量值。
+
+#### preserveValueImports
+
+已弃用，使用 `verbatimModuleSyntax` 替代。
+某些场景下，TypeScript 不能检测到使用了 `import` 语法。如下，TypeScript 会判断这个 `import` 没用而去掉它，因为在 `eval` 中使用，TypeScript 没有办法判断是否使用了。
+
+```typescript
+import { Animal } from "./animal.js";
+eval("console.log(new Animal().isDangerous)");
+```
+
+```vue
+<script setup>
+import { someFunc } from "./some-module.js";
+</script>
+
+<button @click="someFunc">Click</button>
+```
+
+#### removeComments
+
+编译成 JavaScript 时是否删除所有注释。
+
+#### sourceMap
+
+设置编译时是否生成 `SourceMap` 文件。
+
+#### sourceRoot
+
+在 `SourceMap` 里面设置 TypeScript 源文件的位置。
+
+```json
+{
+    "compilerOptions": {
+        "sourceMap": true,
+        "sourceRoot": "https://my-website.com/debug/source/"
+    }
+}
+```
+
+#### stripInternal
+
+当开启该设置时，将停止为具有 `@internal` JSDoc 注释的代码生成声明。
+
+### JavaScript Support
 
 #### allowJs
 
@@ -496,3 +735,66 @@ import * as React from "react";
     }
 }
 ```
+
+#### checkJs
+
+`checkJS` 设置对 JS 文件同样进行类型检查。打开这个属性，也会自动打开 `allowJs`。它等同于在 JS 脚本的头部添加 `// @ts-check` 命令
+
+#### maxNodeModuleJsDepth
+
+在 `node_modules` 下搜索并加载 JavaScript 文件的最大依赖深度。仅当启用 `allowJs` 时才能使用此标志，如果您想让 `TypeScript` 为 `node_modules` 内的所有 JavaScript 推断类型，则可以使用此标志。默认值为 0
+
+### Editor Support
+
+#### disableSizeLimit
+
+为了避免在处理非常大的 JavaScript 项目时可能出现的内存膨胀问题，TypeScript 将分配的内存量有一个上限。打开此标志将取消限制。
+
+#### plugins
+
+编辑器内运行的语言服务插件列表
+
+### Interop Constraints
+
+#### allowSyntheticDefaultImports
+
+允许 import 命令默认加载没有 `default` 输出的模块。
+
+```typescript
+// 默认情况
+import * as React from "react";
+// 开启配置后
+import React from "react";
+```
+
+#### esModuleInterop
+
+该配置修复了一些 CommonJS 和 ES6 模块之间的兼容性问题。
+
+```typescript
+import * as moment from "moment";
+moment();
+```
+
+上面示例中，根据 `ES6` 的规范，`import * as moment` 里面的 `moment` 是一个对象，不能当做函数调用。
+
+```typescript
+import moment from "moment";
+moment();
+```
+
+改成这种就不会报错了。如果将上面的代码编译成 CommonJS 模块格式，打开 `esModuleInterop` 就会加入一些辅助函数，确保编译后的代码行为正确。
+
+打开 `esModuleInterop`，将自动打开 `allowSyntheticDefaultImports`
+
+#### forceConsistentCasingInFileNames
+
+设置文件名是否大小写敏感，默认是开启的。
+
+#### isolatedModules
+
+设置如果当前 TypeScript 脚本作为单个模块编译，是否会因为缺少其他脚本的类型信息而报错，主要便于非官方的编译工具（比如 Babel）正确编译单个脚本。
+
+#### preserveSymlinks
+
+这个开关使用于 Node.js，当这个选项开启时，在进行模块和 package 解析时（例如使用 import 或者三斜杠语法）引用都是相对于符号链接文件的位置来解析的，而不是相对于符号链接所解析的路径。

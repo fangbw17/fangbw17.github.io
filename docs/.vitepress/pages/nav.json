@@ -1,6 +1,10 @@
 {
   "nav": [
     {
+      "text": "HTML",
+      "link": "/html/introduce"
+    },
+    {
       "text": "Javascript",
       "link": "/javascript/basic/data-type"
     },
@@ -22,6 +26,17 @@
     }
   ],
   "sidebar": {
+    "/html/": [
+      {
+        "text": "html",
+        "items": [
+          {
+            "text": "简介",
+            "link": "/html/introduce"
+          }
+        ]
+      }
+    ],
     "/javascript/": [
       {
         "text": "基础",
