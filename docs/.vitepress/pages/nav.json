@@ -49,6 +49,10 @@
           {
             "text": "变量声明",
             "link": "/javascript/basic/variable"
+          },
+          {
+            "text": "Class",
+            "link": "/javascript/basic/class"
           }
         ]
       },
