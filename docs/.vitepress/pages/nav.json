@@ -51,6 +51,10 @@
             "link": "/javascript/basic/variable"
           },
           {
+            "text": "原型和原型链",
+            "link": "/javascript/basic/prototype"
+          },
+          {
             "text": "Class",
             "link": "/javascript/basic/class"
           }

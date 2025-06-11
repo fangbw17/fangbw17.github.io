@@ -4,7 +4,7 @@
 set -e  #有错误抛出错误
  
 # 构建
-pnpm docs:build
+npm run docs:build
 cd docs/.vitepress/dist
 
 git init
