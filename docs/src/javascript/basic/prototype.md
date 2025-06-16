@@ -32,7 +32,7 @@ JavaScript 是一种基于对象设计的语言，但是和传统的面向对象
 
 如图所示，`rabbit` 对象的 `__proto__` 属性指向 `animal` 对象，所以 `rabbit` 对象可以访问到 `animal` 对象的属性和方法。
 
-::: tip
+::: tip 注意
 `__proto__` 只能是一个对象或者 **null**，其他类型的都会被忽略
 :::
 
@@ -99,80 +99,6 @@ for (const k in rabbit) {
 - `__proto__` 是 `[[prototype]]` 的 **getter/setter**，但是在规范中，`__proto__` 是一个非标准的属性，不应该被使用。
 - 如果访问对象中没有的属性或方法，那么会从该对象的原型对象中查找
 - `for...in` 是可以遍历对象自身和继承的属性
-
-<!--
-```js
-function createPerson(age, name) {
-  return {
-    age: age,
-    name: name,
-  };
-}
-
-const person1 = createPerson(18, "Tom");
-const person2 = createPerson(19, "Jerry");
-```
-
-在上面示例中，我们定义了一个函数 createPerson，它接受两个参数 age 和 name，返回一个对象。
-这样，我们就可以通过调用 createPerson 函数来创建多个对象，而不需要重复编写相同的代码。
-如果我们想再定义一些方法和属性呢？
-
-```js
-function createPerson(age, name) {
-  return {
-    age: age,
-    name: name,
-    sayHello: function () {
-      console.log("Hello, my name is " + this.name);
-    },
-  };
-}
-
-const person1 = createPerson(18, "Tom");
-const person2 = createPerson(19, "Jerry");
-```
-
-![图-1](/assets/img/javascript/prototype/prototype-1.png)
-
-如上图所示，通过 `craetePerson` 函数定义的对象，可以看到 `person1` 和 `person2` 除了有 age 和 name 属性，还有 sayHello 方法。
-但是如果我们有更多的对象，它们的 sayHello 方法都是相同的，那么就会有很多重复的代码。
-为了避免这种重复的代码，我们可以再改进一下实现方式：
-
-```js
-function Person(age, name) {
-  this.age = age;
-  this.name = name;
-}
-
-Person.prototype.sayHello = function () {
-  console.log("Hello, my name is " + this.name);
-};
-
-// 实现箭头函数定义原型方法会报错，因为箭头函数没有自己的 this，this 会指向全局对象，
-// Person.prototype.sayHello = () => {
-//   console.log("Hello, my name is " + this.name);
-// };
-
-const person1 = new Person(18, "Tom");
-const person2 = new Person(19, "Jerry");
-
-person1.sayHello(); // Hello, my name is Tom
-person2.sayHello(); // Hello, my name is Jerry
-```
-
-我们通过 new 关键字调用 Person 函数来创建一个新的对象，在构造函数调用阶段，构造函数会生成一个 `prototype` 属性，该属性是一个具有 `constructor` 属性和其他若干方法、属性的对象。
-如下图所示：
-![图-2](/assets/img/javascript/prototype/prototype-2.png)
-
-::: tip
-构造函数和普通函数并无区别，只是在调用时使用了 new 关键字。但是一般约定俗成的，构造函数的命名**首字母大写**。
-:::
-
-## \_\_proto\_\_ 和 [[Prototype]]
-
-在上面的示例中，我们看到了变量 `person1` 和 `person2` 都可以调用 `sayHellow` 方法，但是 `sayHellow` 方法是定义在 **Person** 的 **prototype** 属性上的。那么是怎么访问到呢？
-
-在 JavaScript 中，对象都有一个隐藏属性 `[[Prototype]]`, 这个属性只能是对象或者 **null** -->
 
 ## F.prototype
 
@@ -273,4 +199,58 @@ console.log(F.__proto__.__proto__.__proto__ === null); // true
 如图所示，所有内建对象的最终原型都是 `Object.prototype`。
 ![图-4](/assets/img/javascript/prototype/prototype-4.png)
 
-::: tip
+## getPrototypeOf & setPrototypeOf
+
+在上面我们提到了对象有一个内部属性 `[[prototype]]`，同时我们可以通过 `__proto__` 来访问它。但是我们不建议这样，这里是有一些历史原因的。
+
+- 构造函数中的 `prototype` 属性自古以来就起作用，这是使用给定原型创建对象的最古老方式。
+- 之后，在 2012 年，`ECMAScript` 标准中出现了 `Object.create`，提供了使用给定原型创建对象的能力，但是没有提供 **get/set** 原型的能力。于是，一些浏览器实现了**_非标准_**的 `__proto__` 访问器，给开发者提供更多的灵活性。
+- 在 2015 年，`Object.getPrototypeOf` 和 `Object.setPrototypeOf` 被加入到标准中，提供了 `__proto__` 同样的功能，且符合标准规范。之后，`__proto__` 被加入到标准的附件 B 中，即：在非浏览器环境下，它的支持是可选的。
+- 在 2022 年，`__proto__` 又从附录 B 中移除（仅在创建字面量对象时使用，作为 getter/setter 仍然不可使用，还在附录 B 中）
+
+所以尽量使用 `Object.getPrototypeOf` 和 `Object.setPrototypeOf`，而不是 `__proto__`（在非浏览器环境下可能不支持）。
+
+::: tip 如果非常关注速度，那么请不要修改已存在的 `[[prototype]]`
+理论上来说，我们可以在任意时间修改一个对象的 `[[prototype]]`，但是这样做是非常危险的。因为这样做会改变对象的内部状态，从而影响到对象的行为。
+
+而且，JavaScript 引擎内部对此是做了优化的，修改 `[[prototype]]` 会破坏这个行为。
+:::
+
+### 纯净的对象
+
+通常创建一个对象，它会从原型中继承到很多方法，且显示设置 `__proto__` 的值为非对象和非 null，会被忽略。
+
+```js
+let animal = {
+  __proto__: "animal",
+  name: "animal",
+};
+
+console.log(animal.toString()); // [object Object]
+console.log(animal.__proto__); // Object.prototype
+```
+
+如上所示，animal 显式指定了 `__proto__` 属性，然而得到值不是字符串，仍然指向 `Object.prototype`。
+如果想自定义 `__proto__` 可以使用下面方式
+
+```js
+let animal = Object.create(null); // let animal = { __proto__: null };
+animal.__proto__ = "animal";
+console.log(animal.__proto__);
+```
+
+`Object.create(null)` 创建了一个空对象，对象的原型对象是 null
+
+### 小结
+
+1. 使用给定的原型创建对象，使用:
+
+- 字面量语法: `{__proto__: ...}`
+- Object.create(proto,[descriptors])
+
+```js
+let clone = Object.create(
+  Object.getPrototypeOf(obj),
+  Object.getOwnPropertyDescriptors(obj)
+);
+```
